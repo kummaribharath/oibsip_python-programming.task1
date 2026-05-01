@@ -22,13 +22,13 @@ def listen():
     """Listens to the microphone and returns the recognized text."""
     recognizer = sr.Recognizer()
     
-    with sr.Microphone() as source:
-        print("\nListening...")
-        # Adjusting for ambient noise helps make recognition more accurate
-        recognizer.adjust_for_ambient_noise(source, duration=1)
-        audio = recognizer.listen(source)
-
     try:
+        with sr.Microphone() as source:
+            print("\nListening... (Please speak into your microphone)")
+            # Adjusting for ambient noise helps make recognition more accurate
+            recognizer.adjust_for_ambient_noise(source, duration=1)
+            audio = recognizer.listen(source)
+
         print("Recognizing...")
         # We use Google's free speech recognition API
         command = recognizer.recognize_google(audio)
@@ -38,11 +38,15 @@ def listen():
     except sr.UnknownValueError:
         # Triggered if the speech is unintelligible 
         print("Sorry, I didn't catch that.")
-        return ""
+        return input("Please type your command instead: ").lower()
     except sr.RequestError:
         # Triggered if there is no internet connection
         print("Sorry, the speech recognition service is down.")
-        return ""
+        return input("Please type your command instead: ").lower()
+    except (OSError, AttributeError):
+        # Triggered if no microphone is found, or if PyAudio is missing
+        print("No microphone detected (or PyAudio is missing).")
+        return input("Please type your command instead: ").lower()
 
 def main():
     speak("Hello! I am your voice assistant. How can I help you?")
@@ -99,4 +103,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
